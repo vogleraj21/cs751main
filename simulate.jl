@@ -10,7 +10,7 @@ function simulate(config::Configuration, π; runs=1000, steps=100)
     for run in 1:runs
         rewards = zeros(steps)
         states = Vector{State}(undef, steps)
-        state = initial_state
+        state = initial
         for step in 1:steps
             states[step] = state
 
@@ -36,5 +36,5 @@ function example_policy_2(s::State)
 end
 
 # Run simulations
-println("Example Policy 1 Average Reward: ", simulate(example_config, example_policy_1))
-println("Example Policy 2 Average Reward: ", simulate(example_config, example_policy_2))
+println("Example Policy 1 Average Reward: ", simulate(example, example_policy_1))
+println("Example Policy 2 Average Reward: ", simulate(example, example_policy_2))

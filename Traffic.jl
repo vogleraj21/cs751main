@@ -17,7 +17,9 @@ end
 
 export Configuration
 
-const example_config = Configuration([0.3, 0.3, 0.3, 0.3], 2.0)
+const example = Configuration([0.3, 0.3, 0.3, 0.3], 2.0)
+
+export example
 
 """
 State of the intersection.
@@ -36,7 +38,8 @@ end
 
 export State
 
-const initial_state = State(1, [0, 0, 0, 0])
+const initial = State(1, [0, 0, 0, 0])
+export initial
 
 """
 Reward function.
@@ -53,13 +56,15 @@ export reward
 Transition function.
 """
 function transition(config::Configuration, s::State, action::Int)
-    new_queues = copy(s.queues)
+    new_queues = copy(s.queues)  # Copy queues to modify
+    green_light = s.green_light
+
     if action == 1
         # Let a car pass in the current green light direction
         new_queues[s.green_light] = max(0, new_queues[s.green_light] - 1)
     elseif action == 2
         # Change the green light to a different direction
-        s.green_light = mod(s.green_light, 4) + 1
+        green_light = mod(s.green_light, 4) + 1
     else
         error("Invalid action. Action must be 1 or 2.")
     end
@@ -71,8 +76,10 @@ function transition(config::Configuration, s::State, action::Int)
         end
     end
 
-    return State(s.green_light, new_queues)
+    # Return a new state
+    return State(green_light, new_queues)
 end
+
 
 export transition
 
