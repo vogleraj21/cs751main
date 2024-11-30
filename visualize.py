@@ -11,7 +11,7 @@ traffic_data["Queues"] = traffic_data["Queues"].apply(ast.literal_eval)  # Conve
 pygame.init()
 
 # Screen dimensions
-screen_width, screen_height = 600, 600
+screen_width, screen_height = 600, 700  # Increased height to accommodate slider
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("4-Way Traffic Light Simulation")
 
@@ -21,16 +21,17 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 GRAY = (200, 200, 200)
+BLUE = (0, 0, 255)
 
 # Clock and timing
 clock = pygame.time.Clock()
-time_step_duration = 200  # 200 milliseconds per time step
+time_step_duration = 500  # Default: 0.5 seconds (500 ms)
 
 # Map light index to positions
 light_positions = {
     1: (screen_width // 2, screen_height // 4),  # North
     2: (3 * screen_width // 4, screen_height // 2),  # East
-    3: (screen_width // 2, 3 * screen_height // 4),  # South
+    3: (screen_width // 2, 3 * screen_height // 4 - 50),  # South
     4: (screen_width // 4, screen_height // 2),  # West
 }
 
@@ -71,10 +72,16 @@ def draw_queue_numbers():
             screen.blit(effect_text, effect_rect)
             fade_effects[i]["timer"] -= 1
 
+def draw_slider():
+    """Draw the speed control slider."""
+    pygame.draw.line(screen, BLACK, (100, screen_height - 50), (500, screen_height - 50), 5)  # Slider bar
+    pygame.draw.circle(screen, BLUE, (slider_x, screen_height - 50), 10)  # Slider knob
+
 # Simulation loop
 running = True
 current_step = 0
 previous_queues = [0, 0, 0, 0]
+slider_x = 300  # Initial position of the slider knob (default speed)
 
 while running:
     screen.fill(WHITE)
@@ -82,6 +89,15 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if abs(event.pos[1] - (screen_height - 50)) < 10:  # Near slider
+                slider_x = max(100, min(500, event.pos[0]))  # Constrain slider knob position
+        elif event.type == pygame.MOUSEMOTION:
+            if pygame.mouse.get_pressed()[0]:  # Left mouse button held
+                slider_x = max(100, min(500, event.pos[0]))  # Constrain slider knob position
+
+    # Update simulation speed based on slider position
+    time_step_duration = int((slider_x - 100) / 400 * (1000 - 10) + 10)  # Map slider to [10, 1000] ms
 
     # Get current data
     current_data = traffic_data.iloc[current_step]
@@ -92,16 +108,17 @@ while running:
     for i in range(1, 5):
         diff = queues[i - 1] - previous_queues[i - 1]
         if diff > 0:
-            fade_effects[i] = { "text": "+1", "timer": 3 }
+            fade_effects[i] = { "text": "+1", "timer": 2 }
         elif diff < 0 and i == green_light:
-            fade_effects[i] = { "text": "-1", "timer": 3 }
+            fade_effects[i] = { "text": "-1", "timer": 2 }
 
     # Update previous queues
     previous_queues = queues[:]
 
-    # Draw traffic lights and queues
+    # Draw traffic lights, queues, and slider
     draw_traffic_lights(green_light)
     draw_queue_numbers()
+    draw_slider()
 
     # Update display
     pygame.display.flip()
