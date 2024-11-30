@@ -17,7 +17,8 @@ end
 
 export Configuration
 
-const example = Configuration([0.25, 0.25, 0.25, 0.25], 2.0)
+# 0.0804: probability for only one car to be expected to enter the intersection at a time step
+const example = Configuration([0.2, 0.2, 0.2, 0.2], 1.0)
 
 export example
 
@@ -48,7 +49,7 @@ function reward(config::Configuration, s::State, action::Int)
     # Penalty for waiting cars
     waiting_penalty = -sum(s.queues)
     # Additional penalty for changing the green light
-    change_penalty = (action != 0) ? -config.change_penalty : 0
+    change_penalty = (action != 0 && action != s.green_light) ? -config.change_penalty : 0
 
     return waiting_penalty + change_penalty
 end
@@ -62,7 +63,7 @@ function transition(config::Configuration, s::State, action::Int)
     new_queues = copy(s.queues)
     green_light = s.green_light
 
-    if action == 0
+    if action == 0 || action == green_light
         # Let a car pass in the current green light direction
         new_queues[green_light] = max(0, new_queues[green_light] - 1)
     elseif action in 1:4

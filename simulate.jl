@@ -21,7 +21,7 @@ function simulate(config::Configuration, π; runs=1000, steps=100)
             state = transition(config, state, action)
             rewards[step] = reward(config, state, action)
         end
-        total_rewards[run] = finalreturn(rewards, state)
+        total_rewards[run] = finalreturn(rewards, state)/steps
     end
     return mean(total_rewards)
 end
