@@ -27,14 +27,28 @@ function simulate(config::Configuration, π; runs=1000, steps=100)
 end
 
 # Example policies
-function example_policy_1(s::State)
-    return 0  # Always let cars pass in the current direction
+function no_policy(s::State)
+    return 0 # Always let cars pass in the current direction
 end
 
-function example_policy_2(s::State)
-    return rand(0:4)  # Randomly decide to let a car pass or change direction
+function random_policy(s::State)
+    return rand(0:4) # Randomly decide to let a car pass or change direction
+end
+
+function naive_policy(s::State) # Empty current lane then move to next
+    if s.queues[s.green_light] > 0
+        return 0
+    else
+        return mod(s.green_light + 1, 4) + 1
+    end
+end
+
+function most_cars_policy(s::State)
+    return argmax(s.queues) # Return the lane with the most cars
 end
 
 # Run simulations
-println("Example Policy 1 Average Reward: ", simulate(example, example_policy_1))
-println("Example Policy 2 Average Reward: ", simulate(example, example_policy_2))
+println("No Policy Average Reward:       \t", simulate(example, no_policy))
+println("Random Policy Average Reward:   \t", simulate(example, random_policy))
+println("Naive Policy Average Reward:    \t", simulate(example, naive_policy))
+println("Most Cars Policy Average Reward:\t", simulate(example, most_cars_policy))
