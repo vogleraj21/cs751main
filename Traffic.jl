@@ -17,7 +17,7 @@ end
 
 export Configuration
 
-const example = Configuration([0.3, 0.3, 0.3, 0.3], 2.0)
+const example = Configuration([0.25, 0.25, 0.25, 0.25], 2.0)
 
 export example
 
@@ -45,8 +45,11 @@ export initial
 Reward function.
 """
 function reward(config::Configuration, s::State, action::Int)
+    # Penalty for waiting cars
     waiting_penalty = -sum(s.queues)
-    change_penalty = (action == 2) ? -config.change_penalty : 0
+    # Additional penalty for changing the green light
+    change_penalty = (action != 0) ? -config.change_penalty : 0
+
     return waiting_penalty + change_penalty
 end
 
@@ -56,17 +59,17 @@ export reward
 Transition function.
 """
 function transition(config::Configuration, s::State, action::Int)
-    new_queues = copy(s.queues)  # Copy queues to modify
+    new_queues = copy(s.queues)
     green_light = s.green_light
 
-    if action == 1
+    if action == 0
         # Let a car pass in the current green light direction
-        new_queues[s.green_light] = max(0, new_queues[s.green_light] - 1)
-    elseif action == 2
-        # Change the green light to a different direction
-        green_light = mod(s.green_light, 4) + 1
+        new_queues[green_light] = max(0, new_queues[green_light] - 1)
+    elseif action in 1:4
+        # Change the green light to the specified direction
+        green_light = action
     else
-        error("Invalid action. Action must be 1 or 2.")
+        error("Invalid action. Action must be 0 (let car through) or 1-4 (change green light).")
     end
 
     # Simulate car arrivals
@@ -76,9 +79,9 @@ function transition(config::Configuration, s::State, action::Int)
         end
     end
 
-    # Return a new state
     return State(green_light, new_queues)
 end
+
 
 
 export transition

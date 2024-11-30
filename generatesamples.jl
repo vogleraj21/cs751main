@@ -1,26 +1,39 @@
 include("Traffic.jl")
-using .Traffic
 using CSV
 using DataFrames
+using .Traffic
 
 """
 Generate samples from the simulation.
 """
-function sample(config::Configuration, π; runs=100, steps=50)
-    data = DataFrame(Step=Int[], GreenLight=Int[], Queues=Array{Int, 1}[], Reward=Float64[], Action=Int[])
+function sample(config::Configuration, π; runs=100, steps=100)
+    data = DataFrame(
+        Step=Int[],
+        GreenLight=Int[],
+        Queues=Array{Int, 1}[],
+        Reward=Float64[],
+        Action=Int[]
+    )
 
     for run in 1:runs
-        state = initial_state
+        state = initial
         for step in 1:steps
-            action = π(state)
+            action = π(state)  # Use policy to decide action
             r = reward(config, state, action)
-            data = vcat(data, DataFrame(Step=[step], GreenLight=[state.green_light], 
-                                        Queues=[copy(state.queues)], Reward=[r], Action=[action]))
+            data = vcat(data, DataFrame(
+                Step=[step],
+                GreenLight=[state.green_light],
+                Queues=[copy(state.queues)],
+                Reward=[r],
+                Action=[action]
+            ))
             state = transition(config, state, action)
         end
     end
     return data
 end
 
-samples = sample(example_config, s -> 1)  # Example: Always let cars pass
+# example policy for generating samples
+samples = sample(example, s -> rand(0:4))  # Randomly select actions (0 for passing, 1-4 for changing light)
 CSV.write("traffic_samples.csv", samples)
+println("Samples saved to traffic_samples.csv")

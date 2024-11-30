@@ -28,11 +28,11 @@ end
 
 # Example policies
 function example_policy_1(s::State)
-    return 1  # Always let cars pass in the current direction
+    return 0  # Always let cars pass in the current direction
 end
 
 function example_policy_2(s::State)
-    return rand(1:2)  # Randomly let a car pass or change direction
+    return rand(0:4)  # Randomly decide to let a car pass or change direction
 end
 
 # Run simulations
