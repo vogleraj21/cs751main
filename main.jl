@@ -1,7 +1,7 @@
 include("Traffic.jl")
 include("simulate.jl")
 include("generatesamples.jl")
-using .TrafficLight
+using .Traffic
 
 # Example policy: Always let cars through in the current green light direction.
 function example_policy(s::State)
