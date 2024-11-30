@@ -43,6 +43,10 @@ queue_positions = {
 }
 
 font = pygame.font.Font(None, 36)
+small_font = pygame.font.Font(None, 24)
+
+# Track state for "+1" and "-1"
+fade_effects = {i: {"text": "", "timer": 0} for i in range(1, 5)}
 
 def draw_traffic_lights(green_light):
     """Draw traffic lights in a diamond shape."""
@@ -59,9 +63,18 @@ def draw_queue_numbers():
         text_rect = text.get_rect(center=(x, y))
         screen.blit(text, text_rect)
 
+        # Draw fade effects for "+1" or "-1"
+        if fade_effects[i]["timer"] > 0:
+            color = RED if fade_effects[i]["text"] == "+1" else GREEN
+            effect_text = small_font.render(fade_effects[i]["text"], True, color)
+            effect_rect = effect_text.get_rect(center=(x + 15, y - 15))
+            screen.blit(effect_text, effect_rect)
+            fade_effects[i]["timer"] -= 1
+
 # Simulation loop
 running = True
 current_step = 0
+previous_queues = [0, 0, 0, 0]
 
 while running:
     screen.fill(WHITE)
@@ -74,6 +87,17 @@ while running:
     current_data = traffic_data.iloc[current_step]
     green_light = current_data["GreenLight"]
     queues = current_data["Queues"]
+
+    # Compare queues to detect changes
+    for i in range(1, 5):
+        diff = queues[i - 1] - previous_queues[i - 1]
+        if diff > 0:
+            fade_effects[i] = { "text": "+1", "timer": 3 }
+        elif diff < 0 and i == green_light:
+            fade_effects[i] = { "text": "-1", "timer": 3 }
+
+    # Update previous queues
+    previous_queues = queues[:]
 
     # Draw traffic lights and queues
     draw_traffic_lights(green_light)
