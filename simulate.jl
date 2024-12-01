@@ -47,19 +47,31 @@ function simulate(config::Configuration, π, file_name::String=nothing; runs=100
 end
 
 # Example policies
-function example_policy_1(s::State)
-    return 0  # Always let cars pass in the current direction
+function no_policy(s::State)
+    return 0 # Always let cars pass in the current direction
 end
 
-function example_policy_2(s::State)
-    return rand(0:4)  # Randomly decide to let a car pass or change direction
+function random_policy(s::State)
+    return rand(0:4) # Randomly decide to let a car pass or change direction
+end
+
+function naive_policy(s::State) # Empty current lane then move to next
+    if s.queues[s.green_light] > 0
+        return 0
+    else
+        return mod(s.green_light + 1, 4) + 1
+    end
+end
+
+function most_cars_policy(s::State)
+    return argmax(s.queues) # Return the lane with the most cars
 end
 
 # Run simulations
-println("Example Policy 1 Average Reward: ", simulate(example, example_policy_1, "ex1.csv"))
-println("Example Policy 2 Average Reward: ", simulate(example, example_policy_2, "ex2.csv"))
-
-
+println("No Policy Average Reward:       \t", simulate(example, no_policy, "nopoly.csv"))
+println("Random Policy Average Reward:   \t", simulate(example, random_policy, "ranpoly.csv"))
+println("Naive Policy Average Reward:    \t", simulate(example, naive_policy, "naive.csv"))
+println("Most Cars Policy Average Reward:\t", simulate(example, most_cars_policy, "most.csv"))
 
 ## Q LEARNING SIMULATION
 

@@ -3,7 +3,7 @@ import pandas as pd
 import ast
 
 # Load the data from the CSV file
-file_path = "traffic_samples.csv"  # Adjust this path if needed
+file_path = input("path: ")  # Adjust this path if needed
 traffic_data = pd.read_csv(file_path)
 traffic_data["Queues"] = traffic_data["Queues"].apply(ast.literal_eval)  # Convert strings to lists
 

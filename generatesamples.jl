@@ -6,7 +6,7 @@ using .Traffic
 """
 Generate samples from the simulation.
 """
-function sample(config::Configuration, π; runs=100, steps=100)
+function sample(config::Configuration, π; runs=10, steps=10000)
     data = DataFrame(
         Step=Int[],
         GreenLight=Int[],
@@ -34,6 +34,6 @@ function sample(config::Configuration, π; runs=100, steps=100)
 end
 
 # example policy for generating samples
-samples = sample(example, s -> rand(0:4))  # Randomly select actions (0 for passing, 1-4 for changing light)
+samples = sample(example, s -> argmax(s.queues))  # Randomly select actions (0 for passing, 1-4 for changing light)
 CSV.write("traffic_samples.csv", samples)
 println("Samples saved to traffic_samples.csv")
