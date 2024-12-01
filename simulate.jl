@@ -1,6 +1,8 @@
 include("Traffic.jl")
+include("qlearning.jl")
 using Statistics
 using .Traffic
+using .Qlearning
 
 """
 Simulate the traffic light control problem.
@@ -54,8 +56,11 @@ function amalgam_policy(s::State)
 end
 
 # Run simulations
-println("No Policy Average Reward:       \t", simulate(example, no_policy))
-println("Random Policy Average Reward:   \t", simulate(example, random_policy))
-println("Naive Policy Average Reward:    \t", simulate(example, naive_policy))
-println("Most Cars Policy Average Reward:\t", simulate(example, most_cars_policy))
-println("Amalgam Policy Average Reward:  \t", simulate(example, amalgam_policy))
+println("No Policy Average Reward:        \t", simulate(example, no_policy))
+println("Random Policy Average Reward:    \t", simulate(example, random_policy))
+println("Naive Policy Average Reward:     \t", simulate(example, naive_policy))
+println("Most Cars Policy Average Reward: \t", simulate(example, most_cars_policy))
+println("Amalgam Policy Average Reward:   \t", simulate(example, amalgam_policy))
+
+policy = q_learning()
+println("Q Learning Policy Average Reward:\t", simulate(example, s->policy[discretize(s.green_light, s.queues)]))
