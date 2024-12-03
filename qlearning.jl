@@ -12,7 +12,7 @@ function load_data(filepath::String)
     return CSV.read(filepath, DataFrame)
 end
 
-states = [(l, a, b, c, d) for l in 1:4, a in 0:10, b in 0:10, c in 0:10, d in 0:10]
+states = [(l, a, b, c, d) for l in 1:4, a in 0:4, b in 0:4, c in 0:4, d in 0:4]
 export states
 
 actions = 0:4
@@ -20,11 +20,21 @@ export actions
 
 # Convert balance to 1 of 6 states
 function discretize(green::Int, queues::Vector)
-    return (green, 
-        queues[1] > 10 ? 10 : queues[1], 
-        queues[2] > 10 ? 10 : queues[2], 
-        queues[3] > 10 ? 10 : queues[3], 
-        queues[4] > 10 ? 10 : queues[4])
+    temp = sort([i for i in zip(queues, [1,2,3,4])])
+    lanes = [0,0,0,0]
+    count = 1
+    for (a,b) in temp
+        if a != 0
+            lanes[b] = count
+            count += 1
+        end
+    end
+    return (green, lanes[1], lanes[2], lanes[3], lanes[4])
+    # return (green, 
+    #     queues[1] > 10 ? 10 : queues[1], 
+    #     queues[2] > 10 ? 10 : queues[2], 
+    #     queues[3] > 10 ? 10 : queues[3], 
+    #     queues[4] > 10 ? 10 : queues[4])
 end
 
 export discretize

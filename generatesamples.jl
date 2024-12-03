@@ -6,7 +6,7 @@ using .Traffic
 """
 Generate samples from the simulation.
 """
-function sample(config::Configuration, π; runs=100, steps=100)
+function sample(config::Configuration, π; runs=1000, steps=100)
     data = DataFrame(
         Step=Int[],
         GreenLight=Int[],
